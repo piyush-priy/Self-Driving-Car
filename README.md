@@ -26,13 +26,33 @@ No server or build step required—just open the HTML files locally in a modern 
 
 ## Folder layout
 
-- `index.html` — main simulator: pick a world, run cars, visualize network and mini map
-- `world/` — world editor (open `world/index.html`)
-  - `js/` — core types (graph, geometry, math), editor tools, markings, etc.
-  - `saves/*.world` — sample worlds you can open in the editor
-- `saves/right_hand_rule.car` — example car configuration/brain
-- `car.js`, `sensor.js`, `network.js`, `visualizer.js`, `utils.js`, `miniMap.js` — simulator code
-- `style.css`, `world/styles.css` — UI styles
+```
+/Self Driving Car/
+├── index.html          # Main simulation page, loads all scripts
+├── main.js             # Core simulation loop, runs the genetic algorithm
+├── car.js              # Defines the Car class (physics, sensors, brain, fitness)
+├── network.js          # Defines the NeuralNetwork class (feedForward, mutate)
+├── sensor.js           # Defines the Sensor class (ray-casting)
+├── visualizer.js       # Code for drawing the neural network visualization
+├── miniMap.js          # Code for drawing the top-down mini-map
+│
+├── saves/
+│   └── right_hand_rule.car # A pre-trained brain file (can be loaded in main.js)
+│
+└── world/
+    ├── index.html      # The World Editor application
+    ├── world.js        # Defines the World class (procedural generation)
+    │
+    ├── /js/
+    │   ├── /editors/   # Code for all tools in the editor (GraphEditor, StopEditor)
+    │   ├── /math/      # Contains Graph.js (the data structure for the world)
+    │   ├── /markings/  # Code for all road markings (Stop, Start, Target)
+    │   └── /primitive/ # Defines basic shapes (Point, Segment, Polygon)
+    │
+    └── /saves/
+        ├── big_with_target.world # A default world file
+        └── ...                   # Place your custom .world files here
+```
 
 ## Quick start (run the simulator)
 
