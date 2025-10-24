@@ -23,6 +23,7 @@ No server or build step required—just open the HTML files locally in a modern 
   - Mini map: top‑down map of the road graph
 - Persistent training: save the best brain to localStorage and reload to spawn a new generation
 - Save/load worlds (`.world`) and car brains (`.car` or browser localStorage)
+- Pathfinding: Dijkstra-based shortest path for corridor generation and editor preview
 
 ## Folder layout
 
@@ -132,6 +133,7 @@ About the sensors and network
 Targets and corridors
 - If your world includes a 🎯 Target marking, the simulator builds a corridor from the Start to Target using the road graph’s shortest path. Road borders for collision are then derived from this corridor (red line overlay).
 - Without a Target, the full road borders are used.
+- Pathfinding: shortest paths are computed using Dijkstra’s algorithm on the road graph (see `world/js/math/graph.js`).
 
 ## Mini map
 
@@ -187,8 +189,5 @@ On Windows/PowerShell these commands run in an integrated terminal; adjust the p
 
 ## Credits
 
-This project is inspired by the classic “Self-Driving Car in JavaScript” approach and extended with a full-featured world editor and markings system.
+This project is inspired by the classic "Self-Driving Car in JavaScript" tutorial series by Radu Mariescu-Istodor (Radu's YouTube channel), and has been extended with a full-featured world editor.
 
-## License
-
-MIT License — see the `LICENSE` file for details.
