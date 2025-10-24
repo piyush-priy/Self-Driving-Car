@@ -189,5 +189,5 @@ On Windows/PowerShell these commands run in an integrated terminal; adjust the p
 
 ## Credits
 
-This project is inspired by the classic "Self-Driving Car in JavaScript" tutorial series by Radu Mariescu-Istodor (Radu's YouTube channel), and has been extended with a full-featured world editor.
+This project is inspired by the classic "Self-Driving Car in JavaScript" tutorial series by Radu Mariescu-Istodor (Radu's YouTube channel).
 
