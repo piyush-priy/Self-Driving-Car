@@ -1,16 +1,16 @@
 // Draw road canvas
 const carCanvas = document.getElementById("carCanvas");
-carCanvas.width=window.innerWidth - 330;
+carCanvas.width = window.innerWidth - 330;
 
 // Draw neural network canvas
 const networkCanvas = document.getElementById("networkCanvas");
-networkCanvas.width=300;
+networkCanvas.width = 300;
 const miniMapCanvas = document.getElementById("miniMapCanvas");
-miniMapCanvas.width=300;
+miniMapCanvas.width = 300;
 miniMapCanvas.height = 300;
 
-carCanvas.height=window.innerHeight;
-networkCanvas.height=window.innerHeight-300;
+carCanvas.height = window.innerHeight;
+networkCanvas.height = window.innerHeight - 300;
 
 const carCtx = carCanvas.getContext("2d");
 const networkCtx = networkCanvas.getContext("2d");
@@ -28,15 +28,15 @@ const miniMap = new MiniMap(miniMapCanvas, world.graph, 300);
 
 // Simulating multiple cars by changing value of N. 
 // Also manupulating mutation level by giving values between 0 to 1 in NuralNetwork.mutate() function.
-const N = 500;
+const N = 1000;
 const cars = generateCars(N);
 let bestCar = cars[0];
-if(localStorage.getItem("bestBrain")){
-    for(let i=0; i<cars.length; i++){
+if (localStorage.getItem("bestBrain")) {
+    for (let i = 0; i < cars.length; i++) {
         cars[i].brain = JSON.parse(
             localStorage.getItem("bestBrain"));
-        if(i!=0){
-            NeuralNetwork.mutate(cars[i].brain, 0.1);
+        if (i != 0) {
+            NeuralNetwork.mutate(cars[i].brain, 0.2);
         }
     }
 }
@@ -46,55 +46,55 @@ const traffic = [];
 
 let roadBorders = [];
 const target = world.markings.find((m) => m instanceof Target);
-if(target){
+if (target) {
     world.generateCorridor(bestCar, target.center);
     roadBorders = world.corridor.map((s) => [s.p1, s.p2]);
 }
-else{
+else {
     roadBorders = world.roadBorders.map((s) => [s.p1, s.p2]);
 }
 
 animate();
 // saving and discarding best car
-function save(){
+function save() {
     localStorage.setItem("bestBrain",
-    JSON.stringify(bestCar.brain));
+        JSON.stringify(bestCar.brain));
 }
 
-function discard(){
+function discard() {
     localStorage.removeItem("bestBrain");
 }
 
 // generate cars
-function generateCars(N){
+function generateCars(N) {
     const startPoints = world.markings.filter((m) => m instanceof Start);
     const startPoint = startPoints.length > 0
-      ? startPoints[0].center
-      : new Point(100, 100);
+        ? startPoints[0].center
+        : new Point(100, 100);
     const dir = startPoints.length > 0
-      ? startPoints[0].directionVector
-      : new Point(0, -1);
+        ? startPoints[0].directionVector
+        : new Point(0, -1);
     const startAngle = - angle(dir) + Math.PI / 2;
-    
-    const cars=[];
-    for(let i=1;i<=N;i++){
-        const car = new Car(startPoint.x, startPoint.y,30,50,"AI",startAngle);
+
+    const cars = [];
+    for (let i = 1; i <= N; i++) {
+        const car = new Car(startPoint.x, startPoint.y, 30, 50, "AI", startAngle);
         car.load(carInfo);
         cars.push(car);
     }
     return cars;
 }
 
-function animate(time){
-    for(let i=0;i<traffic.length;i++){
-        traffic[i].update(roadBorders,[]);
+function animate(time) {
+    for (let i = 0; i < traffic.length; i++) {
+        traffic[i].update(roadBorders, []);
     }
-    for(let i=0;i<cars.length;i++){
-        cars[i].update(roadBorders,traffic);
+    for (let i = 0; i < cars.length; i++) {
+        cars[i].update(roadBorders, traffic);
     }
-    bestCar=cars.find(
-        c=>c.fittness==Math.max(
-            ...cars.map(c=>c.fittness)
+    bestCar = cars.find(
+        c => c.fittness == Math.max(
+            ...cars.map(c => c.fittness)
         ));
 
     world.cars = cars;
@@ -108,12 +108,21 @@ function animate(time){
     world.draw(carCtx, viewPoint, false);
     miniMap.update(viewPoint);
 
-    for(let i=0;i<traffic.length;i++){
+    for (let i = 0; i < traffic.length; i++) {
         traffic[i].draw(carCtx);
     }
 
-    networkCtx.lineDashOffset=-time/50;
+    networkCtx.lineDashOffset = -time / 50;
     networkCtx.clearRect(0, 0, networkCanvas.width, networkCanvas.height);
-    Visualizer.drawNetwork(networkCtx,bestCar.brain);
+    Visualizer.drawNetwork(networkCtx, bestCar.brain);
     requestAnimationFrame(animate);
 }
+
+// Optional: auto-save current best brain on refresh/close so training progress persists without pressing the save button
+try {
+    window.addEventListener('beforeunload', () => {
+        if (bestCar && bestCar.brain) {
+            localStorage.setItem('bestBrain', JSON.stringify(bestCar.brain));
+        }
+    });
+} catch (_) { }

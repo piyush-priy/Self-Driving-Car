@@ -1,63 +1,172 @@
 <!DOCTYPE HTML>
 
 <html>
-    <head>
-        <title>Self Driving Car</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
 
-    <body>
-        <canvas id="carCanvas"></canvas>
-        <div id = "verticalButtons">
-            <button onclick = "save()">🗃️</button>
-            <button onclick = "discard()">🗑️</button>
+<head>
+    <title>Self Driving Car</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <canvas id="carCanvas"></canvas>
+    <div id="verticalButtons">
+        <button onclick="save()">🗃️</button>
+        <button onclick="discard()">🗑️</button>
+        <button
+            onclick="(function(){ localStorage.removeItem('world.source'); localStorage.removeItem('world.script'); location.reload(); })()"
+            title="Pick a different world">🌍</button>
+    </div>
+    <div>
+        <canvas id="networkCanvas"></canvas>
+        <canvas id="miniMapCanvas"></canvas>
+    </div>
+
+    <script src="world/js/world.js"></script>
+    <script src="world/js/viewport.js"></script>
+    <script src="world/js/markings/marking.js"></script>
+    <script src="world/js/markings/stop.js"></script>
+    <script src="world/js/markings/start.js"></script>
+    <script src="world/js/markings/crossing.js"></script>
+    <script src="world/js/markings/parking.js"></script>
+    <script src="world/js/markings/light.js"></script>
+    <script src="world/js/markings/target.js"></script>
+    <script src="world/js/markings/yield.js"></script>
+    <script src="world/js/editors/markingEditor.js"></script>
+    <script src="world/js/editors/graphEditor.js"></script>
+    <script src="world/js/editors/stopEditor.js"></script>
+    <script src="world/js/editors/startEditor.js"></script>
+    <script src="world/js/editors/crossingEditor.js"></script>
+    <script src="world/js/editors/parkingEditor.js"></script>
+    <script src="world/js/editors/lightEditor.js"></script>
+    <script src="world/js/editors/targetEditor.js"></script>
+    <script src="world/js/editors/yieldEditor.js"></script>
+    <script src="world/js/items/tree.js"></script>
+    <script src="world/js/items/building.js"></script>
+    <script src="world/js/math/utils.js"></script>
+    <script src="world/js/math/graph.js"></script>
+    <script src="world/js/primitive/point.js"></script>
+    <script src="world/js/primitive/segment.js"></script>
+    <script src="world/js/primitive/polygon.js"></script>
+    <script src="world/js/primitive/envelope.js"></script>
+
+    <!-- <script src="world/saves/new.world"></script> -->
+    <!-- <script src="world/saves/test.world"></script> -->
+    <!-- <script src="world/saves/try.world"></script> -->
+    <!-- Replaced fixed world include with a file picker modal -->
+    <div id="worldLoaderModal"
+        style="position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999;">
+        <div
+            style="background:#1e1e1e; color:#fff; padding:24px 28px; border-radius:12px; width: min(520px, 92vw); box-shadow:0 10px 30px rgba(0,0,0,0.4); font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;">
+            <h2 style="margin:0 0 8px; font-size:20px;">Load a world file</h2>
+            <p style="margin:0 0 16px; color:#bbb; line-height:1.4;">Choose a .world file from your computer, or start
+                with an empty world.</p>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <input id="worldFileInput" type="file" accept=".world,.json,.txt" style="display:none" />
+                <button id="btnPickWorld"
+                    style="padding:10px 14px; background:#2d6cdf; color:#fff; border:none; border-radius:8px; cursor:pointer;">Choose
+                    world file…</button>
+                <button id="btnEmptyWorld"
+                    style="padding:10px 14px; background:#2f2f2f; color:#fff; border:1px solid #3b3b3b; border-radius:8px; cursor:pointer;">Start
+                    with empty world</button>
+            </div>
+            <p style="margin:14px 0 0; font-size:12px; color:#888;">Tip: You can still load your car setup from
+                <code>saves/right_hand_rule.car</code>.
+            </p>
         </div>
-        <div>
-            <canvas id="networkCanvas"></canvas>
-            <canvas id="miniMapCanvas"></canvas>
-        </div>
+    </div>
+    <script>
+        (function () {
+            const modal = document.getElementById('worldLoaderModal');
+            const input = document.getElementById('worldFileInput');
+            const btnPick = document.getElementById('btnPickWorld');
+            const btnEmpty = document.getElementById('btnEmptyWorld');
 
-        <script src="world/js/world.js"></script>
-        <script src="world/js/viewport.js"></script>
-        <script src="world/js/markings/marking.js"></script>
-        <script src="world/js/markings/stop.js"></script>
-        <script src="world/js/markings/start.js"></script>
-        <script src="world/js/markings/crossing.js"></script>
-        <script src="world/js/markings/parking.js"></script>
-        <script src="world/js/markings/light.js"></script>
-        <script src="world/js/markings/target.js"></script>
-        <script src="world/js/markings/yield.js"></script>
-        <script src="world/js/editors/markingEditor.js"></script>
-        <script src="world/js/editors/graphEditor.js"></script>
-        <script src="world/js/editors/stopEditor.js"></script>
-        <script src="world/js/editors/startEditor.js"></script>
-        <script src="world/js/editors/crossingEditor.js"></script>
-        <script src="world/js/editors/parkingEditor.js"></script>
-        <script src="world/js/editors/lightEditor.js"></script>
-        <script src="world/js/editors/targetEditor.js"></script>
-        <script src="world/js/editors/yieldEditor.js"></script>
-        <script src="world/js/items/tree.js"></script>
-        <script src="world/js/items/building.js"></script>
-        <script src="world/js/math/utils.js"></script>
-        <script src="world/js/math/graph.js"></script>
-        <script src="world/js/primitive/point.js"></script>
-        <script src="world/js/primitive/segment.js"></script>
-        <script src="world/js/primitive/polygon.js"></script>
-        <script src="world/js/primitive/envelope.js"></script>
-        
-        <!-- <script src="world/saves/new.world"></script> -->
-        <!-- <script src="world/saves/test.world"></script> -->
-        <!-- <script src="world/saves/try.world"></script> -->
-        <script src="world/saves/big_with_target.world"></script>
-        <script src="saves/right_hand_rule.car"></script>
+            let appStarted = false;
 
-        <script src="miniMap.js"></script>
-        <script src="visualizer.js"></script>
-        <script src="network.js"></script>
-        <script src="sensor.js"></script>
-        <script src="utils.js"></script>
-        <script src="controls.js"></script>
-        <script src="car.js"></script>
-        <script src="main.js"></script>
-    </body>
+            function hideModal() { modal.style.display = 'none'; }
+
+            function injectScriptText(code) {
+                const s = document.createElement('script');
+                s.type = 'text/javascript';
+                s.text = code;
+                document.body.appendChild(s);
+            }
+
+            function injectScriptSrc(src) {
+                return new Promise((resolve, reject) => {
+                    const s = document.createElement('script');
+                    s.src = src;
+                    s.onload = resolve;
+                    s.onerror = reject;
+                    document.body.appendChild(s);
+                });
+            }
+
+            async function startApp() {
+                if (appStarted) return;
+                appStarted = true;
+                hideModal();
+                // Defer main.js load until world exists. Other libs are already loaded above.
+                await injectScriptSrc('miniMap.js'); // ensure present if not yet loaded
+                await injectScriptSrc('visualizer.js');
+                await injectScriptSrc('network.js');
+                await injectScriptSrc('sensor.js');
+                await injectScriptSrc('utils.js');
+                await injectScriptSrc('controls.js');
+                await injectScriptSrc('car.js');
+                await injectScriptSrc('main.js');
+            }
+
+            btnPick.addEventListener('click', () => input.click());
+            input.addEventListener('change', () => {
+                const file = input.files && input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    const code = String(e.target.result || '');
+                    // Execute the world script as a classic script to define global world/graph, etc.
+                    injectScriptText(code);
+                    // Persist selection so refresh restores same world
+                    try {
+                        localStorage.setItem('world.source', 'file');
+                        localStorage.setItem('world.script', code);
+                        localStorage.setItem('world.fileName', file.name);
+                    } catch (_) { /* ignore quota errors */ }
+                    await startApp();
+                };
+                reader.readAsText(file);
+            });
+
+            btnEmpty.addEventListener('click', async () => {
+                // Provide an empty world when none is loaded
+                window.world = new World(new Graph());
+                try {
+                    localStorage.setItem('world.source', 'empty');
+                    localStorage.removeItem('world.script');
+                    localStorage.removeItem('world.fileName');
+                } catch (_) { }
+                await startApp();
+            });
+
+            // Auto-restore last world on refresh (skip popup)
+            try {
+                const src = localStorage.getItem('world.source');
+                if (src === 'file') {
+                    const code = localStorage.getItem('world.script');
+                    if (code) {
+                        injectScriptText(code);
+                        startApp();
+                    }
+                } else if (src === 'empty') {
+                    window.world = new World(new Graph());
+                    startApp();
+                }
+            } catch (_) { }
+        })();
+    </script>
+    <script src="saves/right_hand_rule.car"></script>
+
+    <!-- App scripts will be injected dynamically after selecting a world file -->
+</body>
+
 </html>
